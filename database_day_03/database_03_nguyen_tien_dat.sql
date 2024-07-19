@@ -163,15 +163,23 @@ ON "CHI_TIET_SU_DUNG_DICH_VU"."MaDV"="DICH_VU_DI_KEM"."MaDV"
 WHERE "DAT_PHONG"."TrangThaiDat"=true	
 GROUP BY "DAT_PHONG"."MaDatPhong","PHONG"."LoaiPhong","KHACH_HANG"."TenKH","PHONG"."GiaPhong"
 
-
 -- Câu 2
 
-
+SELECT "KHACH_HANG".*
+FROM "KHACH_HANG"
+INNER JOIN "DAT_PHONG"
+ON "KHACH_HANG"."MaKH"="DAT_PHONG"."MaKH"
+WHERE "KHACH_HANG"."DiaChi" ILIKE 'Hoa Xuan' AND "DAT_PHONG"."TrangThaiDat"=true
 
 -- Câu 3
 
-
-
+SELECT "PHONG"."MaPhong","PHONG"."LoaiPhong","PHONG"."SoKhachToiDa","PHONG"."GiaPhong",
+COUNT("DAT_PHONG"."MaPhong") AS "SoLanDat"
+FROM "PHONG"
+INNER JOIN "DAT_PHONG"
+ON "PHONG"."MaPhong"="DAT_PHONG"."MaPhong"
+GROUP BY "PHONG"."MaPhong","DAT_PHONG"."TrangThaiDat"
+HAVING COUNT("DAT_PHONG"."MaPhong")>2 AND "DAT_PHONG"."TrangThaiDat"=true
 
 
 
