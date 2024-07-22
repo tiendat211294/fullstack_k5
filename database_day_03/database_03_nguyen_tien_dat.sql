@@ -114,8 +114,8 @@ INSERT INTO public."DICH_VU_DI_KEM"(
 	"MaDV", "TenDV", "DonViTinh", "DonGia")
 	VALUES 
 	('DV001','Beer','Lon',10000),
-	('DV002','Nuoc ngot','lon',8000),
-	('DV003','Trai cay','dia',35000),
+	('DV002','Nuoc ngot','Lon',8000),
+	('DV003','Trai cay','Dia',35000),
 	('DV004','Khan uot','Cai',2000)
 
 INSERT INTO public."DAT_PHONG"(
@@ -139,17 +139,16 @@ INSERT INTO public."CHI_TIET_SU_DUNG_DICH_VU"(
 
 -- Câu 1
 
-SELECT "DAT_PHONG"."MaDatPhong", "DAT_PHONG"."MaPhong", "PHONG"."LoaiPhong", "PHONG"."GiaPhong","KHACH_HANG"."TenKH",
-	"DAT_PHONG"."NgayDat", ("PHONG"."GiaPhong"*EXTRACT(HOUR FROM("DAT_PHONG"."GioKetThuc" - "DAT_PHONG"."GioBatDau"))) AS "TongTienHat",
+SELECT "DAT_PHONG"."MaDatPhong", "DAT_PHONG"."MaPhong", "PHONG"."LoaiPhong", "PHONG"."GiaPhong","KHACH_HANG"."TenKH","DAT_PHONG"."NgayDat", 
+	("PHONG"."GiaPhong"*EXTRACT(HOUR FROM("DAT_PHONG"."GioKetThuc" - "DAT_PHONG"."GioBatDau"))) AS "TongTienHat",
 	(CASE 
-	WHEN SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia") IS Null THEN 0
-	ELSE SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia")
-	END)
-	AS "TongTienSuDungDichVu", 
+		WHEN SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia") IS Null THEN 0
+		ELSE SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia")
+	END) AS "TongTienSuDungDichVu", 
 	(("PHONG"."GiaPhong"*EXTRACT(HOUR FROM("DAT_PHONG"."GioKetThuc" - "DAT_PHONG"."GioBatDau")))+
 	(CASE 
-	WHEN SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia") IS Null THEN 0
-	ELSE SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia")
+		WHEN SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia") IS Null THEN 0
+		ELSE SUM("CHI_TIET_SU_DUNG_DICH_VU"."SoLuong" * "DICH_VU_DI_KEM"."DonGia")
 	END)) AS "TongTienThanhToan"
 FROM "DAT_PHONG"
 INNER JOIN "PHONG"
@@ -181,12 +180,46 @@ ON "PHONG"."MaPhong"="DAT_PHONG"."MaPhong"
 GROUP BY "PHONG"."MaPhong","DAT_PHONG"."TrangThaiDat"
 HAVING COUNT("DAT_PHONG"."MaPhong")>2 AND "DAT_PHONG"."TrangThaiDat"=true
 
+-- Câu 4
 
+SELECT "KHACH_HANG"."TenKH"
+FROM "KHACH_HANG"
+GROUP BY "KHACH_HANG"."TenKH"
+HAVING 
+	("KHACH_HANG"."TenKH" ILIKE 'n%' OR 
+	"KHACH_HANG"."TenKH" ILIKE'm%' OR 
+	"KHACH_HANG"."TenKH" ILIKE'h%') AND
+	CHAR_LENGTH("KHACH_HANG"."TenKH") <= 20
 
+-- Câu 5
 
+SELECT DISTINCT("KHACH_HANG"."TenKH")
+FROM "KHACH_HANG"
 
+-- Câu 6
 
+SELECT "DICH_VU_DI_KEM".* 
+FROM "DICH_VU_DI_KEM"
+WHERE
+	("DICH_VU_DI_KEM"."DonViTinh" ILIKE 'lon' AND "DICH_VU_DI_KEM"."DonGia" >10000) OR
+	("DICH_VU_DI_KEM"."DonViTinh" ILIKE 'cai' AND "DICH_VU_DI_KEM"."DonGia" < 5000)
 
+-- Câu 7
 
-
+SELECT "DAT_PHONG"."MaDatPhong","DAT_PHONG"."MaPhong","PHONG"."LoaiPhong","PHONG"."SoKhachToiDa","PHONG"."GiaPhong",
+"DAT_PHONG"."MaKH","KHACH_HANG"."TenKH","KHACH_HANG"."SoDT","DAT_PHONG"."NgayDat","DAT_PHONG"."GioBatDau","DAT_PHONG"."GioKetThuc",
+"CHI_TIET_SU_DUNG_DICH_VU"."MaDV","CHI_TIET_SU_DUNG_DICH_VU"."SoLuong","DICH_VU_DI_KEM"."DonGia"
+FROM "DAT_PHONG"
+INNER JOIN "PHONG"
+ON "DAT_PHONG"."MaPhong"="PHONG"."MaPhong"
+INNER JOIN "KHACH_HANG"
+ON "DAT_PHONG"."MaKH"="KHACH_HANG"."MaKH"
+INNER JOIN "CHI_TIET_SU_DUNG_DICH_VU"
+ON "DAT_PHONG"."MaDatPhong" = "CHI_TIET_SU_DUNG_DICH_VU"."MaDatPhong"
+INNER JOIN "DICH_VU_DI_KEM"
+ON "CHI_TIET_SU_DUNG_DICH_VU"."MaDV" = "DICH_VU_DI_KEM"."MaDV"
+GROUP BY "DAT_PHONG"."MaDatPhong","DAT_PHONG"."MaPhong","PHONG"."LoaiPhong","PHONG"."SoKhachToiDa","PHONG"."GiaPhong",
+"DAT_PHONG"."MaKH","KHACH_HANG"."TenKH","KHACH_HANG"."SoDT","DAT_PHONG"."NgayDat","DAT_PHONG"."GioBatDau","DAT_PHONG"."GioKetThuc",
+"CHI_TIET_SU_DUNG_DICH_VU"."MaDV","CHI_TIET_SU_DUNG_DICH_VU"."SoLuong","DICH_VU_DI_KEM"."DonGia"
+HAVING (EXTRACT(YEAR FROM("DAT_PHONG"."NgayDat")) = 2016 OR EXTRACT(YEAR FROM("DAT_PHONG"."NgayDat")) = 2017) AND "PHONG"."GiaPhong" > 50000
 
